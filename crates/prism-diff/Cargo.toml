@@ -1,0 +1,9 @@
+[package]
+name = "prism-diff"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+prism-core = { path = "../prism-core" }
+serde = { workspace = true }

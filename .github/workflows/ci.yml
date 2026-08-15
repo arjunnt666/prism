@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  rust:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: cargo check
+        run: cargo check --workspace
+      - name: cargo test
+        run: cargo test --workspace -- --nocapture
+      - name: cli smoke
+        run: |
+          cargo build -p prism-cli
+          ./target/debug/prism version
+          ./target/debug/prism capture --query "ci smoke" --provider sample --out /tmp/prism-ci.json
+          ./target/debug/prism features --snapshot /tmp/prism-ci.json
+          ./target/debug/prism diff --before data/samples/before.json --after data/samples/after.json
+
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: syntax
+        run: python -m py_compile packages/prism-py/src/prism/__init__.py
