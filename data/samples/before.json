@@ -1,0 +1,13 @@
+{
+  "id": "11111111-1111-1111-1111-111111111111",
+  "query": { "text": "site architecture", "locale": "en-US", "device": "desktop" },
+  "captured_at": "2026-08-01T12:00:00Z",
+  "provider": "sample",
+  "results": [
+    { "position": 1, "url": "https://example.com/site-architecture", "domain": "example.com", "title": "Example \u2014 site architecture", "snippet": "Public sample", "result_type": "featured_snippet", "has_sitelinks": true, "has_rich_snippet": true, "extra": {} },
+    { "position": 2, "url": "https://docs.rs/site-architecture", "domain": "docs.rs", "title": "Rust Docs \u2014 site architecture", "snippet": "Public sample", "result_type": "organic", "has_sitelinks": false, "has_rich_snippet": false, "extra": {} },
+    { "position": 3, "url": "https://wikipedia.org/site-architecture", "domain": "wikipedia.org", "title": "Wikipedia \u2014 site architecture", "snippet": "Public sample", "result_type": "organic", "has_sitelinks": false, "has_rich_snippet": false, "extra": {} },
+    { "position": 4, "url": "https://github.com/site-architecture", "domain": "github.com", "title": "GitHub \u2014 site architecture", "snippet": "Public sample", "result_type": "organic", "has_sitelinks": true, "has_rich_snippet": false, "extra": {} }
+  ],
+  "notes": "synthetic before fixture"
+}

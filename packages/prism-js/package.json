@@ -1,0 +1,7 @@
+{
+  "name": "@prism/js",
+  "version": "0.1.0",
+  "description": "JS helpers for prism SERP snapshot JSON",
+  "main": "src/index.js",
+  "license": "MIT"
+}
