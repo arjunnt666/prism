@@ -9,37 +9,31 @@ Not a rank tracker SaaS. Not a scraping product. A small pipeline for public ran
 1. capture a ranking snapshot (offline sample provider ships with the repo)
 2. extract boring, checkable features (title tokens, path depth, rich bits)
 3. diff two snapshots and say who moved up, who dropped, who is new
-4. roll snapshots into a competitor map across queries
+4. list stored runs (`history`) and first-vs-last shifts (`report`)
+5. roll snapshots into a competitor map across queries
 
 Public data only. If a source is not clearly public and permitted, it is not in here.
 
 ## quick start
 
 ```bash
+cargo test --workspace
 cargo build -p prism-cli
-./target/debug/prism version
 ./target/debug/prism capture --query "rust async" --provider sample --out /tmp/a.json
 ./target/debug/prism features --snapshot /tmp/a.json
 ./target/debug/prism diff --before data/samples/before.json --after data/samples/after.json
+./target/debug/prism history --store-dir data/samples
+./target/debug/prism report --store-dir data/samples
 ```
 
 ## crates
 
-| crate | job |
-|-------|-----|
-| prism-core | snapshot + result types |
-| prism-collect | providers (sample offline) |
-| prism-parse | html helpers for public pages |
-| prism-features | feature extraction |
-| prism-store | memory + json directory store |
-| prism-diff | rank movement |
-| prism-analyze | competitor maps |
-| prism-cli | the tool you actually run |
+prism-core, prism-collect, prism-parse, prism-features, prism-store, prism-diff, prism-analyze, prism-cli
 
 ## honesty
 
-The sample provider is deterministic offline data so CI and demos do not depend on live SERP HTML. Live parsers will break when markup changes. That is expected. Keep methodology notes in docs/methodology.
+the sample provider is offline and deterministic. live HTML parsers will break. that is fine. the rank math is the part that has to stay true.
 
 ## license
 
-mit. measure carefully. cite your sources.
+mit.

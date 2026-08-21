@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use prism_analyze::competitor_map;
+use prism_analyze::{competitor_map, history_rows, query_shifts};
 use prism_collect::provider_by_name;
 use prism_core::{Device, Query};
 use prism_diff::{diff_snapshots, summarize};
@@ -45,6 +45,18 @@ enum Commands {
         store_dir: PathBuf,
         #[arg(long, default_value_t = 20)]
         top: usize,
+    },
+    /// List stored snapshots in capture order.
+    History {
+        #[arg(long)]
+        store_dir: PathBuf,
+    },
+    /// First vs last rank positions per query, plus the competitor map.
+    Report {
+        #[arg(long)]
+        store_dir: PathBuf,
+        #[arg(long)]
+        query: Option<String>,
     },
     Version,
 }
@@ -129,6 +141,61 @@ async fn main() -> anyhow::Result<()> {
                     row.worst_position
                 );
             }
+        }
+        Commands::History { store_dir } => {
+            let snaps = JsonDirStore::open(store_dir)?.list_all()?;
+            anyhow::ensure!(!snaps.is_empty(), "no snapshots in store");
+            for row in history_rows(&snaps) {
+                println!(
+                    "{}  {}  results={}  top={}  {}",
+                    row.captured_at,
+                    row.id,
+                    row.results,
+                    row.top_domain.as_deref().unwrap_or("-"),
+                    row.query
+                );
+            }
+            println!("count={}", snaps.len());
+        }
+        Commands::Report { store_dir, query } => {
+            let snaps = JsonDirStore::open(store_dir)?.list_all()?;
+            anyhow::ensure!(!snaps.is_empty(), "no snapshots in store");
+            let snaps: Vec<_> = match query {
+                Some(q) => snaps
+                    .into_iter()
+                    .filter(|s| s.query.text == q)
+                    .collect(),
+                None => snaps,
+            };
+            anyhow::ensure!(!snaps.is_empty(), "no snapshots matched");
+            let map = competitor_map(&snaps);
+            println!("snapshots={} queries={}", snaps.len(), map.queries.len());
+            let mut any_move = false;
+            for shift in query_shifts(&snaps) {
+                if shift.movers.is_empty() {
+                    println!("query {:?} snapshots={} (no position changes)", shift.query, shift.snapshots);
+                    continue;
+                }
+                any_move = true;
+                println!(
+                    "query {:?} snapshots={} movers={}",
+                    shift.query,
+                    shift.snapshots,
+                    shift.movers.len()
+                );
+                for (domain, before, after) in shift.movers {
+                    println!(
+                        "  {:<20} {:>3} -> {:>3}",
+                        domain,
+                        before.map(|x| x.to_string()).unwrap_or_else(|| "-".into()),
+                        after.map(|x| x.to_string()).unwrap_or_else(|| "-".into())
+                    );
+                }
+            }
+            anyhow::ensure!(
+                any_move || snaps.len() < 2,
+                "expected at least one rank change across stored runs"
+            );
         }
         Commands::Version => println!("prism 0.1.0"),
     }

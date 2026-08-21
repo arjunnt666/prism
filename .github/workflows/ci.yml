@@ -24,6 +24,9 @@ jobs:
           ./target/debug/prism capture --query "ci smoke" --provider sample --out /tmp/prism-ci.json
           ./target/debug/prism features --snapshot /tmp/prism-ci.json
           ./target/debug/prism diff --before data/samples/before.json --after data/samples/after.json
+          ./target/debug/prism history --store-dir data/samples
+          ./target/debug/prism report --store-dir data/samples
+          ./target/debug/prism competitors --store-dir data/samples
 
   python:
     runs-on: ubuntu-latest
