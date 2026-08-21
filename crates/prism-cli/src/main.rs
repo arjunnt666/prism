@@ -8,7 +8,7 @@ use prism_store::{load_snapshot_file, save_snapshot_file, JsonDirStore, Snapshot
 use std::path::PathBuf;
 
 #[derive(Parser)]
-#[command(name = "prism", about = "SERP research pipeline \u2014 public data only")]
+#[command(name = "prism", about = "SERP research pipeline - public data only")]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -17,21 +17,34 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     Capture {
-        #[arg(long)] query: String,
-        #[arg(long, default_value = "sample")] provider: String,
-        #[arg(long)] out: Option<PathBuf>,
-        #[arg(long)] store_dir: Option<PathBuf>,
-        #[arg(long, default_value = "desktop")] device: String,
+        #[arg(long)]
+        query: String,
+        #[arg(long, default_value = "sample")]
+        provider: String,
+        #[arg(long)]
+        out: Option<PathBuf>,
+        #[arg(long)]
+        store_dir: Option<PathBuf>,
+        #[arg(long, default_value = "desktop")]
+        device: String,
     },
     Diff {
-        #[arg(long)] before: PathBuf,
-        #[arg(long)] after: PathBuf,
-        #[arg(long)] json: bool,
+        #[arg(long)]
+        before: PathBuf,
+        #[arg(long)]
+        after: PathBuf,
+        #[arg(long)]
+        json: bool,
     },
-    Features { #[arg(long)] snapshot: PathBuf },
+    Features {
+        #[arg(long)]
+        snapshot: PathBuf,
+    },
     Competitors {
-        #[arg(long)] store_dir: PathBuf,
-        #[arg(long, default_value_t = 20)] top: usize,
+        #[arg(long)]
+        store_dir: PathBuf,
+        #[arg(long, default_value_t = 20)]
+        top: usize,
     },
     Version,
 }
@@ -41,16 +54,32 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
     let cli = Cli::parse();
     match cli.command {
-        Commands::Capture { query, provider, out, store_dir, device } => {
+        Commands::Capture {
+            query,
+            provider,
+            out,
+            store_dir,
+            device,
+        } => {
             let device = match device.as_str() {
                 "mobile" => Device::Mobile,
                 "tablet" => Device::Tablet,
                 _ => Device::Desktop,
             };
-            let q = Query { text: query.clone(), locale: Some("en-US".into()), device };
+            let q = Query {
+                text: query.clone(),
+                locale: Some("en-US".into()),
+                device,
+            };
             let p = provider_by_name(&provider)?;
             let snap = p.capture(&q).await?;
-            println!("captured id={} query={:?} results={}", snap.id, snap.query.text, snap.results.len());
+            println!(
+                "captured id={} query={:?} results={}",
+                snap.id,
+                snap.query.text,
+                snap.results.len()
+            );
+            let had_store = store_dir.is_some();
             if let Some(dir) = store_dir {
                 JsonDirStore::open(dir)?.put(&snap)?;
                 println!("stored in json dir");
@@ -58,7 +87,7 @@ async fn main() -> anyhow::Result<()> {
             if let Some(path) = out {
                 save_snapshot_file(&path, &snap)?;
                 println!("wrote {}", path.display());
-            } else if store_dir.is_none() {
+            } else if !had_store {
                 println!("{}", serde_json::to_string_pretty(&snap)?);
             }
         }
@@ -72,11 +101,13 @@ async fn main() -> anyhow::Result<()> {
                 println!("query: {}", report.query.text);
                 println!("summary: {:?}", summarize(&report));
                 for d in &report.deltas {
-                    println!("  {:<20} {:>3} -> {:>3}  {:?}",
+                    println!(
+                        "  {:<20} {:>3} -> {:>3}  {:?}",
                         d.domain,
-                        d.before.map(|x| x.to_string()).unwrap_or("-".into()),
-                        d.after.map(|x| x.to_string()).unwrap_or("-".into()),
-                        d.kind);
+                        d.before.map(|x| x.to_string()).unwrap_or_else(|| "-".into()),
+                        d.after.map(|x| x.to_string()).unwrap_or_else(|| "-".into()),
+                        d.kind
+                    );
                 }
             }
         }
@@ -89,8 +120,14 @@ async fn main() -> anyhow::Result<()> {
             let map = competitor_map(&snaps);
             println!("queries: {}", map.queries.len());
             for row in map.rows.iter().take(top) {
-                println!("{:<24} present={:<3} avg={:.1} best={} worst={}",
-                    row.domain, row.queries_present, row.avg_position, row.best_position, row.worst_position);
+                println!(
+                    "{:<24} present={:<3} avg={:.1} best={} worst={}",
+                    row.domain,
+                    row.queries_present,
+                    row.avg_position,
+                    row.best_position,
+                    row.worst_position
+                );
             }
         }
         Commands::Version => println!("prism 0.1.0"),
