@@ -1,13 +1,12 @@
 {
-  "id": "22222222-2222-2222-2222-222222222222",
+  "id": "00000000-0000-4000-8000-000000000002",
   "query": { "text": "site architecture", "locale": "en-US", "device": "desktop" },
-  "captured_at": "2026-08-15T12:00:00Z",
+  "captured_at": "2026-08-08T12:00:00Z",
   "provider": "sample",
   "results": [
-    { "position": 1, "url": "https://docs.rs/site-architecture", "domain": "docs.rs", "title": "Rust Docs \u2014 site architecture", "snippet": "Public sample", "result_type": "organic", "has_sitelinks": false, "has_rich_snippet": false, "extra": {} },
-    { "position": 2, "url": "https://example.com/site-architecture", "domain": "example.com", "title": "Example \u2014 site architecture", "snippet": "Public sample", "result_type": "organic", "has_sitelinks": true, "has_rich_snippet": true, "extra": {} },
-    { "position": 3, "url": "https://arxiv.org/site-architecture", "domain": "arxiv.org", "title": "arXiv \u2014 site architecture", "snippet": "Public sample", "result_type": "organic", "has_sitelinks": false, "has_rich_snippet": false, "extra": {} },
-    { "position": 4, "url": "https://github.com/site-architecture", "domain": "github.com", "title": "GitHub \u2014 site architecture", "snippet": "Public sample", "result_type": "organic", "has_sitelinks": true, "has_rich_snippet": false, "extra": {} }
+    { "position": 1, "url": "https://docs.rs/arch", "domain": "docs.rs", "title": "Rust Docs -- site architecture", "snippet": "B", "result_type": "organic", "has_sitelinks": false, "has_rich_snippet": true, "extra": {} },
+    { "position": 2, "url": "https://example.com/arch", "domain": "example.com", "title": "Example -- site architecture", "snippet": "A", "result_type": "organic", "has_sitelinks": true, "has_rich_snippet": false, "extra": {} },
+    { "position": 3, "url": "https://github.com/arch", "domain": "github.com", "title": "GitHub -- site architecture", "snippet": "D", "result_type": "organic", "has_sitelinks": false, "has_rich_snippet": false, "extra": {} }
   ],
-  "notes": "synthetic after fixture"
+  "notes": null
 }
