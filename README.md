@@ -1,20 +1,10 @@
-# prism
+How I would explain prism if someone asked where the numbers came from
 
-SERP research you can actually explain in a meeting.
+I capture a ranking snapshot. the repo ships an offline sample provider so you can do this without hitting the live web. then I extract boring, checkable features (title tokens, path depth, rich bits). then I diff two snapshots and say who moved up, who dropped, who is new. `history` lists stored runs. `report` is first vs last shifts. those snapshots can roll into a competitor map across queries.
 
-Not a rank tracker SaaS. Not a scraping product. A small pipeline for public ranking snapshots, feature extraction, and competitor maps, with the methodology written down so nobody has to guess what the numbers mean.
+Public data only. if a source is not clearly public and permitted, it is not in here.
 
-## what it does
-
-1. capture a ranking snapshot (offline sample provider ships with the repo)
-2. extract boring, checkable features (title tokens, path depth, rich bits)
-3. diff two snapshots and say who moved up, who dropped, who is new
-4. list stored runs (`history`) and first-vs-last shifts (`report`)
-5. roll snapshots into a competitor map across queries
-
-Public data only. If a source is not clearly public and permitted, it is not in here.
-
-## quick start
+The commands I actually use:
 
 ```bash
 cargo test --workspace
@@ -26,14 +16,8 @@ cargo build -p prism-cli
 ./target/debug/prism report --store-dir data/samples
 ```
 
-## crates
+crates in the tree: prism-core, prism-collect, prism-parse, prism-features, prism-store, prism-diff, prism-analyze, prism-cli
 
-prism-core, prism-collect, prism-parse, prism-features, prism-store, prism-diff, prism-analyze, prism-cli
+sample provider is offline and deterministic. live HTML parsers will break. that is fine. the rank math is the part that has to stay true.
 
-## honesty
-
-the sample provider is offline and deterministic. live HTML parsers will break. that is fine. the rank math is the part that has to stay true.
-
-## license
-
-mit.
+MIT.
