@@ -88,4 +88,22 @@ mod tests {
         store.put(&snap).unwrap();
         assert_eq!(store.get(snap.id).unwrap().query.text, "test");
     }
+
+    #[test]
+    fn json_dir_roundtrip() {
+        let snap = Snapshot::new(
+            Query { text: "rust async".into(), locale: None, device: Device::Desktop },
+            "sample",
+            vec![],
+        );
+        let dir = std::env::temp_dir().join(format!("prism-json-{}", snap.id));
+        let store = JsonDirStore::open(&dir).unwrap();
+        store.put(&snap).unwrap();
+        let got = store.get(snap.id).unwrap();
+        assert_eq!(got.query.text, "rust async");
+        let all = store.list_all().unwrap();
+        assert_eq!(all.len(), 1);
+        let _ = std::fs::remove_dir_all(dir);
+    }
 }
+
