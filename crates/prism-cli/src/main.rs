@@ -103,7 +103,11 @@ async fn main() -> anyhow::Result<()> {
                 println!("{}", serde_json::to_string_pretty(&snap)?);
             }
         }
-        Commands::Diff { before, after, json } => {
+        Commands::Diff {
+            before,
+            after,
+            json,
+        } => {
             let b = load_snapshot_file(&before)?;
             let a = load_snapshot_file(&after)?;
             let report = diff_snapshots(&b, &a)?;
@@ -116,7 +120,9 @@ async fn main() -> anyhow::Result<()> {
                     println!(
                         "  {:<20} {:>3} -> {:>3}  {:?}",
                         d.domain,
-                        d.before.map(|x| x.to_string()).unwrap_or_else(|| "-".into()),
+                        d.before
+                            .map(|x| x.to_string())
+                            .unwrap_or_else(|| "-".into()),
                         d.after.map(|x| x.to_string()).unwrap_or_else(|| "-".into()),
                         d.kind
                     );
@@ -125,7 +131,10 @@ async fn main() -> anyhow::Result<()> {
         }
         Commands::Features { snapshot } => {
             let snap = load_snapshot_file(&snapshot)?;
-            println!("{}", serde_json::to_string_pretty(&extract_snapshot(&snap))?);
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&extract_snapshot(&snap))?
+            );
         }
         Commands::Competitors { store_dir, top } => {
             let snaps = JsonDirStore::open(store_dir)?.list_all()?;
@@ -161,10 +170,7 @@ async fn main() -> anyhow::Result<()> {
             let snaps = JsonDirStore::open(store_dir)?.list_all()?;
             anyhow::ensure!(!snaps.is_empty(), "no snapshots in store");
             let snaps: Vec<_> = match query {
-                Some(q) => snaps
-                    .into_iter()
-                    .filter(|s| s.query.text == q)
-                    .collect(),
+                Some(q) => snaps.into_iter().filter(|s| s.query.text == q).collect(),
                 None => snaps,
             };
             anyhow::ensure!(!snaps.is_empty(), "no snapshots matched");
@@ -173,7 +179,10 @@ async fn main() -> anyhow::Result<()> {
             let mut any_move = false;
             for shift in query_shifts(&snaps) {
                 if shift.movers.is_empty() {
-                    println!("query {:?} snapshots={} (no position changes)", shift.query, shift.snapshots);
+                    println!(
+                        "query {:?} snapshots={} (no position changes)",
+                        shift.query, shift.snapshots
+                    );
                     continue;
                 }
                 any_move = true;

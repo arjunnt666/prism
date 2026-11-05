@@ -1,4 +1,4 @@
-FROM rust:1.80-slim AS builder
+FROM rust:1-slim AS builder
 WORKDIR /app
 COPY . .
 RUN cargo build --release -p prism-cli

@@ -48,9 +48,11 @@ pub fn competitor_map(snaps: &[Snapshot]) -> CompetitorMap {
         })
         .collect();
     rows.sort_by(|a, b| {
-        b.queries_present
-            .cmp(&a.queries_present)
-            .then(a.avg_position.partial_cmp(&b.avg_position).unwrap_or(std::cmp::Ordering::Equal))
+        b.queries_present.cmp(&a.queries_present).then(
+            a.avg_position
+                .partial_cmp(&b.avg_position)
+                .unwrap_or(std::cmp::Ordering::Equal),
+        )
     });
     CompetitorMap { queries, rows }
 }
@@ -169,7 +171,10 @@ mod tests {
     }
     #[test]
     fn map_counts_presence() {
-        let snaps = vec![snap("a", &["x.com", "y.com"]), snap("b", &["x.com", "z.com"])];
+        let snaps = vec![
+            snap("a", &["x.com", "y.com"]),
+            snap("b", &["x.com", "z.com"]),
+        ];
         let map = competitor_map(&snaps);
         let x = map.rows.iter().find(|r| r.domain == "x.com").unwrap();
         assert_eq!(x.queries_present, 2);

@@ -5,15 +5,22 @@ use std::collections::HashMap;
 
 pub fn diff_snapshots(before: &Snapshot, after: &Snapshot) -> Result<DiffReport> {
     if before.query.text != after.query.text {
-        return Err(PrismError::Invalid(format!("query mismatch: '{}' vs '{}'", before.query.text, after.query.text)));
+        return Err(PrismError::Invalid(format!(
+            "query mismatch: '{}' vs '{}'",
+            before.query.text, after.query.text
+        )));
     }
     let mut before_map: HashMap<String, (u32, String)> = HashMap::new();
     for r in &before.results {
-        before_map.entry(r.domain.to_lowercase()).or_insert((r.position, r.url.clone()));
+        before_map
+            .entry(r.domain.to_lowercase())
+            .or_insert((r.position, r.url.clone()));
     }
     let mut after_map: HashMap<String, (u32, String)> = HashMap::new();
     for r in &after.results {
-        after_map.entry(r.domain.to_lowercase()).or_insert((r.position, r.url.clone()));
+        after_map
+            .entry(r.domain.to_lowercase())
+            .or_insert((r.position, r.url.clone()));
     }
     let mut domains: std::collections::HashSet<String> = before_map.keys().cloned().collect();
     domains.extend(after_map.keys().cloned());
@@ -25,17 +32,36 @@ pub fn diff_snapshots(before: &Snapshot, after: &Snapshot) -> Result<DiffReport>
             (None, Some((pos, url))) => (None, Some(*pos), url.clone(), RankChangeKind::New),
             (Some((pos, url)), None) => (Some(*pos), None, url.clone(), RankChangeKind::Dropped),
             (Some((bp, url)), Some((ap, _))) => {
-                let kind = if bp == ap { RankChangeKind::Unchanged }
-                    else if ap < bp { RankChangeKind::MovedUp }
-                    else { RankChangeKind::MovedDown };
+                let kind = if bp == ap {
+                    RankChangeKind::Unchanged
+                } else if ap < bp {
+                    RankChangeKind::MovedUp
+                } else {
+                    RankChangeKind::MovedDown
+                };
                 (Some(*bp), Some(*ap), url.clone(), kind)
             }
             (None, None) => continue,
         };
-        deltas.push(RankDelta { domain, url, before: before_pos, after: after_pos, kind });
+        deltas.push(RankDelta {
+            domain,
+            url,
+            before: before_pos,
+            after: after_pos,
+            kind,
+        });
     }
-    deltas.sort_by(|x, y| x.after.unwrap_or(u32::MAX).cmp(&y.after.unwrap_or(u32::MAX)));
-    Ok(DiffReport { query: before.query.clone(), before_id: before.id, after_id: after.id, deltas })
+    deltas.sort_by(|x, y| {
+        x.after
+            .unwrap_or(u32::MAX)
+            .cmp(&y.after.unwrap_or(u32::MAX))
+    });
+    Ok(DiffReport {
+        query: before.query.clone(),
+        before_id: before.id,
+        after_id: after.id,
+        deltas,
+    })
 }
 
 pub fn summarize(report: &DiffReport) -> HashMap<&'static str, usize> {
@@ -61,12 +87,29 @@ mod tests {
     use prism_core::{Device, Query, RankedResult, ResultType};
     use std::collections::HashMap;
     fn snap(q: &str, pairs: &[(&str, u32)]) -> Snapshot {
-        let results = pairs.iter().map(|(domain, pos)| RankedResult {
-            position: *pos, url: format!("https://{}/", domain), domain: (*domain).to_string(),
-            title: domain.to_string(), snippet: None, result_type: ResultType::Organic,
-            has_sitelinks: false, has_rich_snippet: false, extra: HashMap::new(),
-        }).collect();
-        Snapshot::new(Query { text: q.into(), locale: None, device: Device::Desktop }, "test", results)
+        let results = pairs
+            .iter()
+            .map(|(domain, pos)| RankedResult {
+                position: *pos,
+                url: format!("https://{}/", domain),
+                domain: (*domain).to_string(),
+                title: domain.to_string(),
+                snippet: None,
+                result_type: ResultType::Organic,
+                has_sitelinks: false,
+                has_rich_snippet: false,
+                extra: HashMap::new(),
+            })
+            .collect();
+        Snapshot::new(
+            Query {
+                text: q.into(),
+                locale: None,
+                device: Device::Desktop,
+            },
+            "test",
+            results,
+        )
     }
     #[test]
     fn detects_move_and_drop() {

@@ -31,9 +31,19 @@ pub struct SnapshotFeatures {
 pub fn extract_result(query: &str, r: &RankedResult) -> ResultFeatures {
     let q_terms: Vec<&str> = query.split_whitespace().collect();
     let title_lower = r.title.to_lowercase();
-    let title_has = q_terms.iter().any(|t| title_lower.contains(&t.to_lowercase()));
-    let path_depth = r.url.split("://").nth(1)
-        .map(|rest| rest.split('/').filter(|s| !s.is_empty()).count().saturating_sub(1))
+    let title_has = q_terms
+        .iter()
+        .any(|t| title_lower.contains(&t.to_lowercase()));
+    let path_depth = r
+        .url
+        .split("://")
+        .nth(1)
+        .map(|rest| {
+            rest.split('/')
+                .filter(|s| !s.is_empty())
+                .count()
+                .saturating_sub(1)
+        })
         .unwrap_or(0);
     ResultFeatures {
         position: r.position,
@@ -86,19 +96,28 @@ pub fn domain_frequency(snaps: &[Snapshot]) -> HashMap<String, u32> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use prism_core::{Device, Query, SnapshotId};
     use chrono::Utc;
+    use prism_core::{Device, Query, SnapshotId};
     #[test]
     fn extracts_basic_features() {
         let snap = Snapshot {
             id: SnapshotId::new(),
-            query: Query { text: "rust docs".into(), locale: None, device: Device::Desktop },
+            query: Query {
+                text: "rust docs".into(),
+                locale: None,
+                device: Device::Desktop,
+            },
             captured_at: Utc::now(),
             provider: "sample".into(),
             results: vec![RankedResult {
-                position: 1, url: "https://docs.rs/foo".into(), domain: "docs.rs".into(),
-                title: "Rust docs for foo".into(), snippet: Some("hello".into()),
-                result_type: ResultType::Organic, has_sitelinks: true, has_rich_snippet: false,
+                position: 1,
+                url: "https://docs.rs/foo".into(),
+                domain: "docs.rs".into(),
+                title: "Rust docs for foo".into(),
+                snippet: Some("hello".into()),
+                result_type: ResultType::Organic,
+                has_sitelinks: true,
+                has_rich_snippet: false,
                 extra: HashMap::new(),
             }],
             notes: None,

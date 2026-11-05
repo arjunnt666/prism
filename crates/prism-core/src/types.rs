@@ -9,11 +9,15 @@ use uuid::Uuid;
 pub struct SnapshotId(pub Uuid);
 
 impl SnapshotId {
-    pub fn new() -> Self { Self(Uuid::new_v4()) }
+    pub fn new() -> Self {
+        Self(Uuid::new_v4())
+    }
 }
 
 impl Default for SnapshotId {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl std::fmt::Display for SnapshotId {
@@ -31,17 +35,29 @@ pub struct Query {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum Device { Desktop, Mobile, Tablet }
-
-impl Default for Device {
-    fn default() -> Self { Device::Desktop }
+#[derive(Default)]
+pub enum Device {
+    #[default]
+    Desktop,
+    Mobile,
+    Tablet,
 }
+
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ResultType {
-    Organic, FeaturedSnippet, PeopleAlsoAsk, LocalPack, ImagePack,
-    Video, News, Shopping, KnowledgePanel, Ad, Other,
+    Organic,
+    FeaturedSnippet,
+    PeopleAlsoAsk,
+    LocalPack,
+    ImagePack,
+    Video,
+    News,
+    Shopping,
+    KnowledgePanel,
+    Ad,
+    Other,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -80,18 +96,29 @@ impl Snapshot {
     }
 
     pub fn organic(&self) -> impl Iterator<Item = &RankedResult> {
-        self.results.iter().filter(|r| r.result_type == ResultType::Organic)
+        self.results
+            .iter()
+            .filter(|r| r.result_type == ResultType::Organic)
     }
 
     pub fn position_of_domain(&self, domain: &str) -> Option<u32> {
-        self.results.iter().find(|r| r.domain.eq_ignore_ascii_case(domain)).map(|r| r.position)
+        self.results
+            .iter()
+            .find(|r| r.domain.eq_ignore_ascii_case(domain))
+            .map(|r| r.position)
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum RankChangeKind {
-    Gained, Lost, MovedUp, MovedDown, Unchanged, New, Dropped,
+    Gained,
+    Lost,
+    MovedUp,
+    MovedDown,
+    Unchanged,
+    New,
+    Dropped,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

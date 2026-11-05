@@ -1,0 +1,21 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release -p prism-cli
+      - run: tar czf prism-${{ github.ref_name }}-x86_64-linux.tar.gz -C target/release prism
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: prism-*.tar.gz
